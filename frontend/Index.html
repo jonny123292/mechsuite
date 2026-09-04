@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MechSuite | Mechanical Engineering Analysis & Design Platform</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top App Navigation -->
+  <header class="app-header">
+    <div class="brand-container">
+      <div class="brand-logo">⚙</div>
+      <div class="brand-info">
+        <h1>MechSuite <span class="brand-badge">v1.0 • Python Core</span></h1>
+        <p>Mechanical Engineering Analysis & Computation Platform</p>
+      </div>
+    </div>
+    <nav class="nav-tabs">
+      <button type="button" class="nav-tab-btn active" data-tab="beam">
+        <span>📐</span> Beam Mechanics
+      </button>
+      <button type="button" class="nav-tab-btn" data-tab="fluids">
+        <span>💧</span> Fluid Hydraulics
+      </button>
+      <button type="button" class="nav-tab-btn" data-tab="thermo">
+        <span>🔥</span> Thermodynamics
+      </button>
+      <button type="button" class="nav-tab-btn" data-tab="materials">
+        <span>📚</span> Materials & Sections
+      </button>
+    </nav>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-container">
+
+    <!-- ================= TAB 1: BEAM MECHANICS ================= -->
+    <section id="beam" class="tab-pane active">
+      <div class="dashboard-grid">
+        
+        <!-- Controls Column -->
+        <div class="controls-col">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title"><span>⚙</span> Beam Parameters</h2>
+                <div class="card-subtitle">Boundary conditions & geometry</div>
+              </div>
+            </div>
+
+            <!-- Quick Presets -->
+            <div class="form-group">
+              <label class="form-label">Load Presets</label>
+              <div class="presets-bar">
+                <button type="button" class="btn-preset" data-beam-preset="simply_point">Mid-Span Point Load</button>
+                <button type="button" class="btn-preset" data-beam-preset="simply_udl">Uniform Distributed Load</button>
+                <button type="button" class="btn-preset" data-beam-preset="cantilever_tip">Cantilever Tip Load</button>
+                <button type="button" class="btn-preset" data-beam-preset="combined">Combined Loading</button>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Beam Type</label>
+                <select id="beam-type" class="form-select">
+                  <option value="simply_supported">Simply Supported</option>
+                  <option value="cantilever">Cantilever (Fixed-Free)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Span Length (L)</label>
+                <div class="input-with-unit">
+                  <input type="number" id="beam-len" class="form-input has-unit" value="5.0" step="0.5" min="0.5">
+                  <span class="input-unit">m</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Material</label>
+              <select id="beam-mat" class="form-select material-select">
+                <!-- Dynamically populated from backend -->
+              </select>
+            </div>
+
+            <!-- Cross Section Selection -->
+            <div class="form-group">
+              <label class="form-label">Cross Section Geometry</label>
+              <select id="sec-type" class="form-select">
+                <option value="rectangular">Rectangular Bar</option>
+                <option value="circular">Solid Circular Shaft</option>
+                <option value="pipe">Hollow Circular Pipe</option>
+                <option value="i_beam">Standard I-Beam</option>
+              </select>
+            </div>
+
+            <!-- Section Dimensions: Rectangular -->
+            <div id="sec-dims-rect" class="form-row">
+              <div class="form-group">
+                <label class="form-label">Width (b)</label>
+                <div class="input-with-unit">
+                  <input type="number" id="rect-b" class="form-input has-unit dim-input" value="50" step="5">
+                  <span class="input-unit">mm</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Height (h)</label>
+                <div class="input-with-unit">
+                  <input type="number" id="rect-h" class="form-input has-unit dim-input" value="100" step="5">
+                  <span class="input-unit">mm</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Dimensions: Circular -->
+            <div id="sec-dims-circ" class="form-row" style="display:none;">
+              <div class="form-group">
+                <label class="form-label">Diameter (d)</label>
+                <div class="input-with-unit">
+                  <input type="number" id="circ-d" class="form-input has-unit dim-input" value="60" step="5">
+                  <span class="input-unit">mm</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Dimensions: Pipe -->
+            <div id="sec-dims-pipe" class="form-row" style="display:none;">
+              <div class="form-group">
+                <label class="form-label">Outer Diameter (D)</label>
+                <div class="input-with-unit">
+                  <input type="number" id="pipe-d" class="form-input has-unit dim-input" value="80" step="5">
+                  <span class="input-unit">mm</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Wall Thickness (t)</label>
+                <div class="input-with-unit">
+                  <input type="number" id="pipe-t" class="form-input has-unit dim-input" value="5" step="1">
+                  <span class="input-unit">mm</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Dimensions: I-Beam -->
+            <div id="sec-dims-ibeam" style="display:none;">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Flange Width (bf)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="ib-bf" class="form-input has-unit dim-input" value="100" step="5">
+                    <span class="input-unit">mm</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Total Height (h)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="ib-h" class="form-input has-unit dim-input" value="150" step="5">
+                    <span class="input-unit">mm</span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Web Thickness (tw)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="ib-tw" class="form-input has-unit dim-input" value="6" step="1">
+                    <span class="input-unit">mm</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Flange Thickness (tf)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="ib-tf" class="form-input has-unit dim-input" value="10" step="1">
+                    <span class="input-unit">mm</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mini Section Properties Display -->
+            <div class="section-preview-box">
+              <canvas id="section-canvas" class="section-canvas"></canvas>
+              <div class="section-data">
+                <div class="section-data-row"><span>Area (A):</span><strong id="prop-area">--</strong></div>
+                <div class="section-data-row"><span>Inertia (Ixx):</span><strong id="prop-ixx">--</strong></div>
+                <div class="section-data-row"><span>Modulus (Zxx):</span><strong id="prop-zxx">--</strong></div>
+                <div class="section-data-row"><span>y_max:</span><strong id="prop-ymax">--</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Applied Loads Card -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title"><span>⚡</span> Applied Loading</h2>
+                <div class="card-subtitle">Point forces and distributed loads</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                <label class="form-label" style="margin:0;">Concentrated Point Loads</label>
+                <button type="button" id="btn-add-point-load" class="btn-secondary">+ Add Force</button>
+              </div>
+              <div id="point-loads-list"></div>
+            </div>
+
+            <div class="form-group">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                <label class="form-label" style="margin:0;">Uniformly Distributed Loads (UDL)</label>
+                <button type="button" id="btn-add-udl" class="btn-secondary">+ Add UDL</button>
+              </div>
+              <div id="udl-loads-list"></div>
+            </div>
+
+            <button type="button" id="btn-solve-beam" class="btn-primary">
+              <span>▶</span> Calculate & Analyze Beam
+            </button>
+          </div>
+        </div>
+
+        <!-- Visuals & Results Column -->
+        <div class="results-col">
+          
+          <!-- KPI Summary -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">Max Bending Moment</div>
+              <div class="kpi-value"><span id="kpi-moment">0.0</span> <span class="kpi-unit">kN·m</span></div>
+              <div class="kpi-subtitle">Peak bending load</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Max Shear Force</div>
+              <div class="kpi-value"><span id="kpi-shear">0.0</span> <span class="kpi-unit">kN</span></div>
+              <div class="kpi-subtitle">Peak internal shear</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Max Bending Stress</div>
+              <div class="kpi-value"><span id="kpi-stress">0.0</span> <span class="kpi-unit">MPa</span></div>
+              <div class="kpi-subtitle">σ = M / Zxx</div>
+            </div>
+            <div id="kpi-fos-card" class="kpi-card">
+              <div class="kpi-label">Factor of Safety</div>
+              <div class="kpi-value"><span id="kpi-fos">--</span></div>
+              <span id="kpi-fos-pill" class="status-pill safe">Safe</span>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Max Deflection</div>
+              <div class="kpi-value"><span id="kpi-deflection">0.0</span> <span class="kpi-unit">mm</span></div>
+              <div id="deflection-limit-text" class="kpi-subtitle">Allowable: --</div>
+            </div>
+          </div>
+
+          <!-- Reactions Banner -->
+          <div class="alert-banner">
+            <span>⚖️</span> <span id="beam-reactions-info">Reactions calculating...</span>
+          </div>
+
+          <!-- Beam Loading Schematic -->
+          <div class="canvas-wrapper">
+            <div class="canvas-header">
+              <span class="canvas-title"><span>📐</span> Beam Loading Schematic</span>
+            </div>
+            <div class="canvas-container">
+              <canvas id="canvas-schematic"></canvas>
+            </div>
+          </div>
+
+          <!-- SFD -->
+          <div class="canvas-wrapper">
+            <div class="canvas-header">
+              <span class="canvas-title"><span>📉</span> Shear Force Diagram (SFD)</span>
+            </div>
+            <div class="canvas-container">
+              <canvas id="canvas-sfd"></canvas>
+            </div>
+          </div>
+
+          <!-- BMD -->
+          <div class="canvas-wrapper">
+            <div class="canvas-header">
+              <span class="canvas-title"><span>📊</span> Bending Moment Diagram (BMD)</span>
+            </div>
+            <div class="canvas-container">
+              <canvas id="canvas-bmd"></canvas>
+            </div>
+          </div>
+
+          <!-- Deflection Curve -->
+          <div class="canvas-wrapper">
+            <div class="canvas-header">
+              <span class="canvas-title"><span>〰️</span> Elastic Deflection Profile</span>
+            </div>
+            <div class="canvas-container">
+              <canvas id="canvas-deflection"></canvas>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= TAB 2: FLUID MECHANICS ================= -->
+    <section id="fluids" class="tab-pane">
+      <div class="dashboard-grid">
+        
+        <!-- Controls Column -->
+        <div class="controls-col">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title"><span>💧</span> Pipe Flow & Fluid Parameters</h2>
+                <div class="card-subtitle">Darcy-Weisbach friction & head losses</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Working Fluid</label>
+              <select id="fluid-select" class="form-select">
+                <option value="water_20c">Water (20°C)</option>
+                <option value="engine_oil">Engine Oil (SAE 30)</option>
+                <option value="air_20c">Air (20°C, 1 atm)</option>
+                <option value="diesel_fuel">Diesel Fuel (20°C)</option>
+                <option value="custom">Custom Fluid</option>
+              </select>
+            </div>
+
+            <div id="custom-fluid-fields" class="form-row" style="display:none;">
+              <div class="form-group">
+                <label class="form-label">Density (ρ)</label>
+                <div class="input-with-unit">
+                  <input type="number" id="cust-density" class="form-input has-unit" value="1000" step="10">
+                  <span class="input-unit">kg/m³</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Dynamic Viscosity (μ)</label>
+                <div class="input-with-unit">
+                  <input type="number" id="cust-visc" class="form-input has-unit" value="0.001" step="0.0001">
+                  <span class="input-unit">Pa·s</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Pipe Inner Diameter (D)</label>
+                <div class="input-with-unit">
+                  <input type="number" id="pipe-dia" class="form-input has-unit" value="50" step="5" min="1">
+                  <span class="input-unit">mm</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Pipe Length (L)</label>
+                <div class="input-with-unit">
+                  <input type="number" id="pipe-len" class="form-input has-unit" value="100" step="10" min="1">
+                  <span class="input-unit">m</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Pipe Material (Roughness ε)</label>
+              <select id="pipe-mat" class="form-select">
+                <option value="commercial_steel">Commercial Steel (ε = 0.045 mm)</option>
+                <option value="drawn_copper">Drawn Copper / Brass (ε = 0.0015 mm)</option>
+                <option value="pvc_plastic">PVC / Smooth Plastic (ε = 0.0015 mm)</option>
+                <option value="cast_iron">Cast Iron (ε = 0.26 mm)</option>
+                <option value="galvanized_iron">Galvanized Iron (ε = 0.15 mm)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Volumetric Flow Rate (Q)</label>
+              <div class="input-with-unit">
+                <input type="number" id="pipe-flow-rate" class="form-input has-unit" value="18" step="1" min="0.1">
+                <span class="input-unit">m³/h</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Minor Losses (ΣK)</label>
+                <div class="input-with-unit">
+                  <input type="number" id="pipe-k" class="form-input has-unit" value="2.5" step="0.5" min="0">
+                  <span class="input-unit">K</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Pump Efficiency</label>
+                <div class="input-with-unit">
+                  <input type="number" id="pump-eff" class="form-input has-unit" value="75" step="5" min="10" max="100">
+                  <span class="input-unit">%</span>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" id="btn-solve-fluids" class="btn-primary">
+              <span>▶</span> Compute Hydraulics & Head Loss
+            </button>
+          </div>
+        </div>
+
+        <!-- Results Column -->
+        <div class="results-col">
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">Flow Velocity</div>
+              <div class="kpi-value"><span id="kpi-fluid-velocity">0.0</span> <span class="kpi-unit">m/s</span></div>
+              <div class="kpi-subtitle">Cross-section average</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Reynolds Number</div>
+              <div class="kpi-value"><span id="kpi-reynolds">0</span></div>
+              <span id="kpi-regime-pill" class="status-pill safe">Turbulent</span>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Darcy Friction Factor</div>
+              <div class="kpi-value"><span id="kpi-darcy-f">0.000</span></div>
+              <div class="kpi-subtitle">Swamee-Jain equation</div>
+            </div>
+            <div class="kpi-card warning">
+              <div class="kpi-label">Total Head Loss</div>
+              <div class="kpi-value"><span id="kpi-headloss">0.0</span> <span class="kpi-unit">m</span></div>
+              <div id="headloss-breakdown" class="kpi-subtitle">Major: -- | Minor: --</div>
+            </div>
+            <div class="kpi-card danger">
+              <div class="kpi-label">Total Pressure Drop</div>
+              <div class="kpi-value"><span id="kpi-pressuredrop">0.0</span> <span class="kpi-unit">kPa</span></div>
+              <div id="pressuredrop-bar" class="kpi-subtitle">-- bar</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Required Pump Shaft Power</div>
+              <div class="kpi-value"><span id="kpi-pumppower">0.0</span> <span class="kpi-unit">kW</span></div>
+              <div id="power-hyd" class="kpi-subtitle">Hydraulic: -- kW</div>
+            </div>
+          </div>
+
+          <!-- Formula & Principles Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title"><span>📘</span> Engineering Governing Equations</h2>
+            </div>
+            <div style="font-size:0.88rem; color:var(--text-secondary); line-height:1.7;">
+              <p>• <strong>Reynolds Number:</strong> <code>Re = (ρ · v · D) / μ</code> (Laminar if Re &lt; 2300, Turbulent if Re &ge; 4000)</p>
+              <p>• <strong>Darcy Friction Factor:</strong> Laminar: <code>f = 64 / Re</code> | Turbulent: Swamee-Jain approximation of Colebrook-White equation</p>
+              <p>• <strong>Darcy-Weisbach Major Loss:</strong> <code>h_f = f · (L / D) · (v² / 2g)</code></p>
+              <p>• <strong>Minor Fitting Loss:</strong> <code>h_m = ΣK · (v² / 2g)</code></p>
+              <p>• <strong>Hydraulic Power:</strong> <code>P_hyd = Q · ΔP = Q · ρ · g · h_total</code></p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= TAB 3: THERMODYNAMICS ================= -->
+    <section id="thermo" class="tab-pane">
+      <div class="card">
+        <div class="sub-tabs">
+          <button type="button" class="sub-tab-btn active" data-subtab="carnot-sub">Carnot Engine Limits</button>
+          <button type="button" class="sub-tab-btn" data-subtab="rankine-sub">Rankine Steam Power Plant</button>
+          <button type="button" class="sub-tab-btn" data-subtab="hx-sub">Heat Exchanger LMTD</button>
+        </div>
+
+        <!-- Carnot Sub-Tab -->
+        <div id="carnot-sub" class="sub-tab-content">
+          <div class="dashboard-grid">
+            <div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">High Temperature (TH)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="carnot-th" class="form-input has-unit" value="500" step="25">
+                    <span class="input-unit">°C</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Low Temperature (TL)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="carnot-tl" class="form-input has-unit" value="30" step="5">
+                    <span class="input-unit">°C</span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Heat Input (Q_in)</label>
+                <div class="input-with-unit">
+                  <input type="number" id="carnot-qin" class="form-input has-unit" value="1000" step="100">
+                  <span class="input-unit">kW</span>
+                </div>
+              </div>
+              <button type="button" id="btn-solve-carnot" class="btn-primary">
+                <span>▶</span> Compute Carnot Limits
+              </button>
+            </div>
+
+            <div class="kpi-grid">
+              <div class="kpi-card success">
+                <div class="kpi-label">Carnot Efficiency (η)</div>
+                <div class="kpi-value"><span id="carnot-eff">--%</span></div>
+                <div class="kpi-subtitle">Theoretical ceiling</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Net Work Output</div>
+                <div class="kpi-value"><span id="carnot-wnet">-- kW</span></div>
+                <div class="kpi-subtitle">W_net = η · Q_in</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Heat Rejection (Q_out)</div>
+                <div class="kpi-value"><span id="carnot-qout">-- kW</span></div>
+                <div class="kpi-subtitle">To cold sink</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Coefficient of Performance</div>
+                <div class="kpi-value" style="font-size:1.1rem;"><span id="carnot-cop">--</span></div>
+                <div class="kpi-subtitle">Reverse heat pump / ref</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rankine Sub-Tab -->
+        <div id="rankine-sub" class="sub-tab-content" style="display:none;">
+          <div class="dashboard-grid">
+            <div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Boiler Pressure (P1)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="rankine-p1" class="form-input has-unit" value="60" step="5">
+                    <span class="input-unit">bar</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Turbine Inlet Temp (T1)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="rankine-t1" class="form-input has-unit" value="500" step="20">
+                    <span class="input-unit">°C</span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Condenser Pressure (P2)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="rankine-p2" class="form-input has-unit" value="10" step="2">
+                    <span class="input-unit">kPa</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Steam Flow Rate (ṁ)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="rankine-mdot" class="form-input has-unit" value="15" step="2">
+                    <span class="input-unit">kg/s</span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Turbine Efficiency (ηt)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="rankine-etat" class="form-input has-unit" value="88" step="2" max="100">
+                    <span class="input-unit">%</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Pump Efficiency (ηp)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="rankine-etap" class="form-input has-unit" value="85" step="2" max="100">
+                    <span class="input-unit">%</span>
+                  </div>
+                </div>
+              </div>
+              <button type="button" id="btn-solve-rankine" class="btn-primary">
+                <span>▶</span> Solve Rankine Cycle
+              </button>
+            </div>
+
+            <div class="kpi-grid">
+              <div class="kpi-card success">
+                <div class="kpi-label">Thermal Efficiency</div>
+                <div class="kpi-value"><span id="rankine-eff">--%</span></div>
+                <div id="rankine-carnot-eff" class="kpi-subtitle">Carnot Limit: --%</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Net Electric Power</div>
+                <div class="kpi-value"><span id="rankine-pwr">-- MW</span></div>
+                <div id="rankine-heat" class="kpi-subtitle">Boiler Q: -- MW</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Specific Steam Consumption</div>
+                <div class="kpi-value"><span id="rankine-ssc">--</span></div>
+                <div class="kpi-subtitle">kg / (kW·h)</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Turbine Exhaust State</div>
+                <div class="kpi-value" style="font-size:1.1rem;"><span id="rankine-quality">--</span></div>
+                <div class="kpi-subtitle">Moisture &lt; 12% safe for blades</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Heat Exchanger Sub-Tab -->
+        <div id="hx-sub" class="sub-tab-content" style="display:none;">
+          <div class="dashboard-grid">
+            <div>
+              <div class="form-group">
+                <label class="form-label">Flow Arrangement</label>
+                <select id="hx-flow" class="form-select">
+                  <option value="counter_flow">Counter-Flow (Higher Effectiveness)</option>
+                  <option value="parallel_flow">Parallel-Flow (Co-current)</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Hot Fluid Inlet (Th,in)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="hx-thin" class="form-input has-unit" value="95" step="5">
+                    <span class="input-unit">°C</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Hot Fluid Outlet (Th,out)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="hx-thout" class="form-input has-unit" value="65" step="5">
+                    <span class="input-unit">°C</span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Cold Fluid Inlet (Tc,in)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="hx-tcin" class="form-input has-unit" value="20" step="5">
+                    <span class="input-unit">°C</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Cold Fluid Outlet (Tc,out)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="hx-tcout" class="form-input has-unit" value="45" step="5">
+                    <span class="input-unit">°C</span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Overall Coeff (U)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="hx-u" class="form-input has-unit" value="800" step="50">
+                    <span class="input-unit">W/m²·K</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Surface Area (A)</label>
+                  <div class="input-with-unit">
+                    <input type="number" id="hx-area" class="form-input has-unit" value="12" step="1">
+                    <span class="input-unit">m²</span>
+                  </div>
+                </div>
+              </div>
+              <button type="button" id="btn-solve-hx" class="btn-primary">
+                <span>▶</span> Compute LMTD & Heat Duty
+              </button>
+            </div>
+
+            <div class="kpi-grid">
+              <div class="kpi-card success">
+                <div class="kpi-label">Log Mean Temp Diff (LMTD)</div>
+                <div class="kpi-value"><span id="hx-lmtd">-- °C</span></div>
+                <div id="hx-dts" class="kpi-subtitle">ΔT1: -- | ΔT2: --</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Heat Duty (Q)</div>
+                <div class="kpi-value"><span id="hx-duty">-- kW</span></div>
+                <div class="kpi-subtitle">Q = U · A · LMTD</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= TAB 4: MATERIALS ================= -->
+    <section id="materials" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title"><span>📚</span> Engineering Materials Catalog</h2>
+            <div class="card-subtitle">Mechanical and thermal properties database</div>
+          </div>
+        </div>
+        <div class="data-table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Material</th>
+                <th>Elastic Modulus (E)</th>
+                <th>Yield Strength (σy)</th>
+                <th>Ultimate Strength (σu)</th>
+                <th>Density (ρ)</th>
+                <th>Poisson's Ratio (ν)</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody id="materials-table-body">
+              <!-- Dynamically populated from backend -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    MechSuite Mechanical Engineering Platform • Connected to Python Flask Engine (127.0.0.1:5000)
+  </footer>
+
+  <!-- Scripts -->
+  <script src="javascript/visualizer.js"></script>
+  <script src="javascript/app.js"></script>
+</body>
+</html>
+
