@@ -4,7 +4,16 @@ MechSuite is an interactive engineering design and analysis tool with a **Python
 
 ---
 
+## 🚀 Live Cloud Deployment & Repository
+
+- **Live Application URL**: [https://mechsuite-production.up.railway.app](https://mechsuite-production.up.railway.app)
+- **GitHub Repository**: [https://github.com/jonny123292/mechsuite](https://github.com/jonny123292/mechsuite)
+- **Deployment Platform**: [Railway.app](https://railway.app) (Automatic Continuous Deployment from `main` branch)
+
+---
+
 ## 🚀 Quick Start
+
 
 ### 1. Run with Python Launcher (Auto-opens browser):
 ```powershell

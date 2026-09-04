@@ -29,3 +29,8 @@ desktop.ini
 # Logs
 *.log
 
+# CLI Tools
+tools/
+*.zip
+
+
